@@ -1,0 +1,40 @@
+# Restricted clinical data and local project folders
+Original data/
+Masks/
+Processed - Results/
+Results/
+MOLLI_registration_comparisons/
+
+# Imaging data and derived maps
+*.dcm
+*.DCM
+*.ima
+*.IMA
+*.nii
+*.nii.gz
+
+# Private tables and generated outputs
+*.csv
+*.RData
+.Rhistory
+*.pdf
+*.png
+
+# Local logs, archives, and temporary files
+Pipeline_Log.txt
+*.log
+*.rar
+*.zip
+*.tmp
+
+# Python and notebook caches
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local environments and operating-system files
+.venv/
+venv/
+.env
+.DS_Store
+Thumbs.db
