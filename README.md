@@ -23,7 +23,6 @@ This is a thesis-specific workflow. It contains study-specific sequence naming r
 | `Rigid_registration.py` | Thesis-specific rigid-registration workflow for T1, T2, and MOLLI maps. |
 | `stat_T1T2_by_group.R` | Final reliability analysis for healthy volunteers and CKD patients: CoV, ICC, and Bland--Altman analysis. |
 | `distribution_plots_separate.R` | Final distribution plots for T1, MOLLI, and T2 by imaging centre and study population. |
-| `FOLDER_STRUCTURE.md` | Privacy-safe overview of the local project layout and processing flow. |
 
 ## Processing and registration workflow
 
