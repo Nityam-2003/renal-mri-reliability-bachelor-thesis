@@ -1,8 +1,9 @@
 # IMPORTANT: Thesis-specific distribution plots for quantitative renal MRI.
 #
-# Run this script from the ``Analysis/Separate`` folder after ``Analysis.py``
-# has created the four private input CSV tables. It generates separate T1,
-# MOLLI, and T2 distribution plots for healthy volunteers and CKD patients.
+# Run this script from the ``Analysis/BRAINSFit_Registration`` folder after
+# ``Descriptive_roi_values.py`` has created the two BRAINSFit descriptive
+# master tables. It generates separate T1, MOLLI, and T2 distribution plots
+# for healthy volunteers and CKD patients within this folder.
 #
 # This script requires the R package tidyverse. Do not commit the input tables
 # or generated plots containing study data to a public repository.
@@ -13,7 +14,8 @@ library(tidyverse)
 # Distribution plots for T1/T2 kidney MRI biomarkers
 # ------------------------------------------------------------
 # Descriptive plots only.
-# Uses all whole-kidney ROI measurements from the four finalized input tables.
+# Uses every available whole-kidney ROI measurement from the descriptive master
+# tables. Pairing and repeatability/reproducibility membership are irrelevant.
 # Healthy volunteers and CKD patients are plotted separately.
 
 script_path <- tryCatch(
@@ -23,66 +25,40 @@ script_path <- tryCatch(
 
 analysis_dir <- if (!is.na(script_path)) dirname(script_path) else getwd()
 
-repeatability_healthy_file <- file.path(
+healthy_master_file <- file.path(
   analysis_dir,
-  "Repeatability_HealthyVolunteers_input.csv"
+  "Descriptive_HealthyVolunteers_master.csv"
 )
-reproducibility_healthy_file <- file.path(
+patient_master_file <- file.path(
   analysis_dir,
-  "Reproducibility_HealthyVolunteers_input.csv"
-)
-repeatability_patients_file <- file.path(
-  analysis_dir,
-  "Repeatability_Patients_input.csv"
-)
-reproducibility_patients_file <- file.path(
-  analysis_dir,
-  "Reproducibility_Patients_input.csv"
+  "Descriptive_CKDPatients_master.csv"
 )
 output_dir <- file.path(analysis_dir, "DistributionPlots")
 
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
-read_input <- function(path) {
+read_descriptive_master <- function(path) {
   read_csv(path, show_col_types = FALSE) %>%
-    mutate(
+    transmute(
       ID = as.character(ID),
+      population = as.character(population),
       site = as.character(site),
       vendor = as.character(vendor),
-      visit = as.character(visit),
-      anatomy = as.character(anatomy),
+      raw_visit = as.character(raw_visit),
       parameter = as.character(parameter),
-      value = as.numeric(value)
+      value = as.numeric(mean_roi_value_ms),
+      valid_voxel_count = as.integer(valid_voxel_count),
+      status = as.character(status)
     ) %>%
-    filter(anatomy == "whole")
+    filter(status == "included", !is.na(value))
 }
 
-prepare_group_data <- function(repeatability_file, reproducibility_file) {
-  bind_rows(
-    read_input(repeatability_file),
-    read_input(reproducibility_file)
-  ) %>%
-    distinct(
-      ID,
-      site,
-      vendor,
-      visit,
-      anatomy,
-      parameter,
-      value,
-      .keep_all = TRUE
-    ) %>%
-    filter(!is.na(value))
-}
-
-healthy_measurements <- prepare_group_data(
-  repeatability_healthy_file,
-  reproducibility_healthy_file
+healthy_measurements <- read_descriptive_master(
+  healthy_master_file
 )
 
-patient_measurements <- prepare_group_data(
-  repeatability_patients_file,
-  reproducibility_patients_file
+patient_measurements <- read_descriptive_master(
+  patient_master_file
 )
 
 parameters <- c("T1", "MOLLI", "T2")

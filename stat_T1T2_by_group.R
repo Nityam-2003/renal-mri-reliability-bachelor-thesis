@@ -1,9 +1,9 @@
 # IMPORTANT: Thesis-specific reliability analysis for quantitative renal MRI.
 #
-# Run this script from the ``Analysis/Separate`` folder after ``Analysis.py``
-# has created the four private input CSV tables. The script analyses healthy
-# volunteers and CKD patients independently and writes CoV, ICC, and
-# Bland--Altman outputs to local result folders.
+# Run this script from the ``Analysis/BRAINSFit_Registration`` folder after
+# ``Analysis.py`` has created the four private BRAINSFit input CSV tables.
+# The script analyses healthy volunteers and CKD patients independently and
+# writes CoV, ICC, and Bland--Altman outputs only within this folder.
 #
 # The CoV implementation follows the published de Boer et al. formulation,
 # adapted here for the final renal MRI data structure. This script requires the

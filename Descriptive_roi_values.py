@@ -8,7 +8,7 @@ the four reliability-analysis input tables.
 
 For each processed examination and available parameter, the script calculates
 the mean of all valid voxels in the already masked whole-kidney ROI map. It
-writes the following private data files to ``Analysis/Separate``:
+writes the following private data files to ``Analysis/BRAINSFit_Registration``:
 
 * Descriptive_HealthyVolunteers_master.csv
 * Descriptive_CKDPatients_master.csv
@@ -22,7 +22,8 @@ parameter. Repeated visits are intentionally retained: these tables describe
 all available processed measurements and are not population reference values
 based on one examination per participant.
 
-Run this script from ``Analysis/Separate`` after ROI map generation. It reads
+Run this script from ``Analysis/BRAINSFit_Registration`` after ROI map
+generation. It reads
 restricted thesis data and must not be committed to a public repository.
 
 Requirements: Python, NumPy, pandas, and SimpleITK.
@@ -55,19 +56,24 @@ def find_project_root():
 
 PROJECT_ROOT = find_project_root()
 PROCESSED_RESULTS = PROJECT_ROOT / "Processed - Results"
-OUTPUT_FOLDER = PROJECT_ROOT / "code or notebooks" / "Analysis" / "Separate"
+OUTPUT_FOLDER = (
+    PROJECT_ROOT
+    / "code or notebooks"
+    / "Analysis"
+    / "BRAINSFit_Registration"
+)
 
 ROI_FILENAMES = {
-    "T1": "t1_roi.nii.gz",
-    "MOLLI": "molli_roi.nii.gz",
-    "T2": "t2_roi.nii.gz",
+    "T1": "t1_roi_brainsfit.nii.gz",
+    "MOLLI": "molli_roi_brainsfit.nii.gz",
+    "T2": "t2_roi_brainsfit.nii.gz",
 }
 
 # These are the same validity ranges used to rebuild the reliability input
 # tables. Zero-valued background voxels in masked ROI maps are excluded.
 VALUE_RANGES = {
-    "T1": (500, 3000),
-    "MOLLI": (500, 3000),
+    "T1": (500, 2500),
+    "MOLLI": (500, 2500),
     "T2": (15, 150),
 }
 
