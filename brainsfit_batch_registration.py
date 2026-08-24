@@ -18,9 +18,8 @@ from pathlib import Path
 import slicer
 
 
-PROCESSED_RESULTS = Path(
-    r"C:\Users\cr714\Downloads\Bachelorarbeit\Everything related to data and analysis\Processed - Results"
-)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROCESSED_RESULTS = PROJECT_ROOT / "Processed - Results"
 
 # These settings reproduce the visible General Registration (BRAINS) settings
 # supplied by the user. The stages run in the listed order: rigid, then global
@@ -263,4 +262,3 @@ if __name__ == "__main__":
 
     slicer.app.processEvents()
     slicer.app.exit(exit_code)
-
