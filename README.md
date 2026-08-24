@@ -1,115 +1,197 @@
 # Renal MRI Reliability: Bachelor Thesis Code
 
-This repository contains the thesis-specific processing, registration, descriptive-analysis, and statistical-analysis scripts used for a Bachelor thesis evaluating the reliability of quantitative renal MRI biomarkers.
+This repository contains the thesis-specific processing, registration, ROI-extraction, descriptive-analysis, and statistical-analysis code used to evaluate quantitative renal MRI biomarkers in healthy volunteers and patients with chronic kidney disease (CKD).
 
-> **Code provenance:** This is not a from-scratch standalone software package. The workflow integrates and adapts existing RESPECT processing and co-registration components, the UKAT quantitative-mapping toolkit, and established reliability-analysis methods. In particular, the CoV implementation follows a published formulation previously applied to DWI data and was adapted here for the quantitative renal MRI data structure. This repository contains the thesis-specific adaptations and orchestration code only; upstream and restricted code is not redistributed.
+The analysis covers respiratory-triggered T1 mapping, MOLLI T1 mapping, and respiratory-triggered T2 mapping. Repeatability and reproducibility were evaluated separately for healthy volunteers and CKD patients using coefficient of variation (CoV), intraclass correlation coefficient (ICC), and Bland--Altman analysis.
 
-The analysis focuses on respiratory-triggered T1 mapping, MOLLI T1 mapping, and respiratory-triggered T2 mapping in healthy volunteers and patients with chronic kidney disease (CKD). The final statistical analyses treat these two study populations independently.
+> **Scope and provenance:** This is a study-specific research workflow, not a standalone clinical application or a from-scratch implementation of every underlying method. It adapts and connects components from the RESPECT processing and co-registration workflows, UKAT quantitative mapping, 3D Slicer BRAINSFit, and established statistical methods. Restricted upstream modules, study data, and participant-level outputs are not distributed here.
 
-## Scope
-
-The repository documents the code used to:
-
-1. process quantitative renal MRI data and generate T1, T2, MOLLI, B0, and B1 outputs;
-2. register quantitative maps to an anatomical reference image;
-3. apply whole-kidney masks and generate the final reliability-analysis input tables;
-4. generate descriptive whole-kidney biomarker-value tables from all available processed examinations;
-5. generate distribution plots;
-6. calculate coefficient of variation (CoV), intraclass correlation coefficient (ICC), and Bland--Altman agreement measures for repeatability and reproducibility analyses.
-
-This is a thesis-specific workflow. It contains study-specific sequence naming rules and folder assumptions, and is not intended to be a general-purpose clinical processing pipeline.
-
-## Repository contents
-
-| File | Purpose |
-|---|---|
-| `functions2.py` | Adapted quantitative-map processing workflow for respiratory-triggered T1, T2 StimFit, MOLLI, B0, B1, B1 correction, and quality-control outputs. |
-| `Rigid_registration.py` | Thesis-specific rigid-registration workflow for T1, T2, and MOLLI maps. |
-| `Analysis.py` | Applies kidney masks to registered maps and regenerates the four final group-specific repeatability and reproducibility input tables. |
-| `Descriptive_roi_values.py` | Generates descriptive whole-kidney biomarker tables from every available masked ROI map, independently of visit pairing and the reliability-analysis input tables. |
-| `stat_T1T2_by_group.R` | Final reliability analysis for healthy volunteers and CKD patients: CoV, ICC, and Bland--Altman analysis. |
-| `distribution_plots_separate.R` | Final distribution plots for T1, MOLLI, and T2 by imaging centre and study population. |
-
-## Processing and analysis workflow
+## Final workflow
 
 ```text
-Restricted DICOM data
+Restricted DICOM examinations
         |
         v
-Quantitative processing (functions2.py)
+Quantitative-map generation and QC
+(Automate/functions2.py)
         |
-        +-- T1, T2, MOLLI, B0, B1 maps and QC outputs
+        +-- respiratory-triggered T1: three-parameter fit + B1 correction
+        +-- MOLLI T1: three-parameter fit + B1 correction
+        +-- respiratory-triggered T2: UKAT StimFit
+        +-- B0 and B1 maps
         |
         v
-Rigid registration (Rigid_registration.py)
+Prepared anatomical T1-weighted fixed images
         |
         v
-Kidney ROI generation / measurements
+Final map registration with 3D Slicer BRAINSFit
+(Registration/brainsfit_batch_registration.py)
+        |
+        v
+Whole-kidney mask application and ROI measurement
+(Analysis/BRAINSFit_Registration/Analysis.py)
         |
         +-------------------------------+
         |                               |
         v                               v
-Reliability input tables           Descriptive ROI tables
-(Analysis.py)                      (Descriptive_roi_values.py)
+Reliability input tables           Descriptive master tables
+(paired visit definitions)         (all available examinations)
         |                               |
-        v                               +-- all available processed examinations
-CoV, ICC, Bland--Altman                 +-- centre-specific summaries
-(stat_T1T2_by_group.R)                  +-- all-included-centres summaries
-        |
-        v
-Distribution and reliability figures
-(distribution_plots_separate.R and R outputs)
+        v                               v
+CoV, ICC, Bland--Altman            Centre-wise distribution plots
+(stat_T1T2_by_group.R)             (distribution_plots_separate.R)
 ```
 
-The descriptive tables and the repeatability/reproducibility analyses serve different purposes. The descriptive workflow retains all available processed examinations, including repeated visits, whereas the reliability workflow uses the study-specific visit-pair definitions required for repeatability and reproducibility analysis.
+An earlier ITK/Elastix registration branch is retained in `Registration/Rigid_registration.py` because it formed part of the thesis workflow and technical evaluation. The final reported ROI measurements were generated from the BRAINSFit-registered maps. The repository is therefore not intended as a general comparison of registration software.
 
-## External code and software provenance
+## Main repository contents
 
-This repository intentionally does **not** redistribute restricted upstream modules or third-party source code.
+| Path | Purpose |
+|---|---|
+| `Automate/functions2.py` | Main quantitative-processing workflow for T1, MOLLI T1, T2 StimFit, B0, B1, B1 correction, and quality-control outputs. |
+| `Registration/Rigid_registration.py` | Initial thesis-specific ITK/Elastix registration workflow, retained for provenance and comparison. |
+| `Registration/brainsfit_batch_registration.py` | Final batch registration of unmasked quantitative maps directly to prepared anatomical T1-weighted fixed images using 3D Slicer BRAINSFit. |
+| `Registration/run_brainsfit_registration.bat` | Windows launcher that runs the BRAINSFit batch script through 3D Slicer. |
+| `Registration/Registration.ipynb` | Working notebook used during registration development and preparation or verification of fixed images. It is not the preferred batch entry point. |
+| `Analysis/BRAINSFit_Registration/Analysis.py` | Applies kidney masks to the final BRAINSFit maps, saves distinct BRAINSFit ROI files, and builds the four repeatability/reproducibility input tables. |
+| `Analysis/BRAINSFit_Registration/Descriptive_roi_values.py` | Builds examination-level and centre-summary descriptive tables from all available BRAINSFit ROI maps. |
+| `Analysis/BRAINSFit_Registration/stat_T1T2_by_group.R` | Final CoV, ICC, and Bland--Altman analyses for healthy volunteers and CKD patients. |
+| `Analysis/BRAINSFit_Registration/distribution_plots_separate.R` | Final centre-wise distribution plots based on the descriptive master tables. |
+| `Analysis/Separate/` | Earlier Elastix-based analysis branch, retained for provenance. |
+| `Analysis/T1_2_parameter/` | Superseded exploratory two-parameter T1 analysis; not used for the final thesis results. |
+| `Analysis/Together/` | Earlier combined-population exploratory analysis; not used for the final separated healthy-volunteer and CKD results. |
 
-### RESPECT Processing Module
+Other notebooks and scripts record development, testing, data inspection, or earlier processing attempts. The files listed above are the principal entry points for reproducing the final workflow.
 
-The quantitative processing workflow was adapted for this thesis from the RESPECT Processing Module. The upstream module provides helper functionality for loading and organising DICOM data. Access to the full module may be restricted.
+## Quantitative processing
 
-- [RESPECT Processing Module](https://github.com/Computer-Assisted-Clinical-Medicine/RESPECT_Processing_Module)
+`Automate/functions2.py` identifies the available sequences using study-specific series names and DICOM metadata. Missing or unprocessable sequences are skipped and recorded in the processing log.
 
-### RESPECT Co-Registration Module
+The final processing choices were:
 
-The rigid-registration workflow uses ITK/Elastix and relies on helper functionality associated with the RESPECT Co-Registration Module. The module itself, including its helper scripts and parameter maps, is not redistributed here. Access to the full module may be restricted.
+- **Respiratory-triggered T1:** three-parameter inversion-recovery fitting, followed by B1 correction.
+- **MOLLI T1:** three-parameter fitting, followed by B1 correction.
+- **Respiratory-triggered T2:** UKAT StimFit with vendor-specific models. StimFit accounts for stimulated-echo and B1-related refocusing effects, so no separate post-fit B1 correction was applied to T2.
+- **B0:** maps were generated and stored but were not used in the final reliability analysis.
+- **Quality control:** parameter maps, fit-quality outputs, numerical summaries, and processing logs were generated where applicable.
 
-- [RESPECT Co-Registration Module](https://github.com/Computer-Assisted-Clinical-Medicine/RESPECT_Co-Registration_Module)
+The code contains study-specific sequence names, centre conventions, and folder assumptions. These must be adapted for another dataset.
 
-### UKAT
+## Registration
 
-Quantitative mapping uses the UKAT toolkit, including T1 mapping, T2 StimFit, B0 mapping, and utility functions. The UKAT source code is not redistributed in this repository.
+### Initial ITK/Elastix branch
 
-- [UKAT: UKRIN-MAPS](https://github.com/UKRIN-MAPS/ukat)
+`Registration/Rigid_registration.py` uses ITK/Elastix to estimate rigid transformations from sequence-specific source images and applies them to the corresponding quantitative maps. It depends on helper functionality associated with the RESPECT Co-Registration Module. This branch is retained because it was used during the study and provided the initial registered outputs.
 
-### Thesis-specific adaptations and integrations
+Run it from the `Registration` directory:
 
-The following scripts contain thesis-specific integration, adaptation, and analysis logic. They should not be interpreted as independent from-scratch implementations of the complete underlying processing, registration, or statistical methods.
+```bash
+python Rigid_registration.py
+```
 
-- `functions2.py`: adaptation of the processing workflow for the renal MRI sequences, including the 3-parameter respiratory-triggered T1 fit, MOLLI handling, T2 StimFit workflow, B1 correction, quality-control outputs, and study-specific sequence selection.
-- `Rigid_registration.py`: study-specific rigid registration of the final quantitative maps to the anatomical reference image, including centre-specific handling of available acquisition layouts.
-- `Analysis.py`: study-specific application of kidney masks and generation of the four final healthy-volunteer and CKD-patient repeatability and reproducibility input tables.
-- `Descriptive_roi_values.py`: thesis-specific descriptive analysis of the already masked whole-kidney ROI maps. It scans every available processed examination and does not use the repeatability/reproducibility visit-pair definitions. Repeated visits are intentionally retained because these tables describe all available processed measurements rather than one value per participant.
-- `stat_T1T2_by_group.R` and `distribution_plots_separate.R`: thesis-specific R implementations of established distribution and reliability analyses for the renal T1, MOLLI, and T2 data structure, centre-specific visit conventions, and separate healthy-volunteer and CKD-patient analyses. The CoV implementation follows the published formulation described by de Boer et al., which was previously applied to DWI data and adapted here for this study.
+### Final 3D Slicer BRAINSFit branch
 
-### Descriptive whole-kidney analysis
+The final branch registers each unmasked quantitative map directly to an already prepared T1-weighted fixed image for the same examination. The batch script uses the settings applied through 3D Slicer's **General Registration (BRAINS)** module:
 
-`Descriptive_roi_values.py` is independent of the paired reliability analyses. It reads the existing masked whole-kidney ROI maps from `Processed - Results` and calculates one examination-level mean for each available parameter after applying the same validity ranges used when rebuilding the reliability-analysis tables:
+- geometry-based initialisation;
+- sampling percentage: `0.002`;
+- rigid stage enabled;
+- global-scale stage enabled;
+- affine and B-spline stages disabled;
+- linear interpolation;
+- background fill value: `0`.
+
+This is a linear rigid-plus-scale registration, not deformable registration.
+
+Expected inputs within each examination folder are:
 
 ```text
-T1:     500-3000 ms
-MOLLI:  500-3000 ms
-T2:     15-150 ms
+Registration/T1/fixed.nii.gz
+Registration/T2/fixed.nii.gz
+Registration/MOLLI/fixed.nii.gz
+
+T1_RespTrig/nifti/t1_map_b1corr.nii.gz
+T2_RespTrig/nifti/stimfit_t2_map.nii.gz
+MOLLI/nifti/molli_t1_map_b1corr.nii.gz
 ```
 
-Only finite voxels within these ranges are included. Because the ROI maps are already masked, zero-valued background voxels are excluded by these ranges.
+The registered maps and transforms are written without overwriting the Elastix outputs:
 
-The script classifies IDs beginning with 5 as healthy volunteers and all other IDs as CKD patients. Centres 01 and 03 are assigned to GE, while Centres 02 and 04 are assigned to Siemens.
+```text
+Registration_BRAINS/T1/t1_map_registered_brains.nii.gz
+Registration_BRAINS/T1/brainsfit_transform.h5
 
-For each population, the script writes two private CSV files:
+Registration_BRAINS/T2/stimfit_t2_map_registered_brains.nii.gz
+Registration_BRAINS/T2/brainsfit_transform.h5
+
+Registration_BRAINS/MOLLI/molli_t1_map_registered_brains.nii.gz
+Registration_BRAINS/MOLLI/brainsfit_transform.h5
+```
+
+Before running the batch, edit these local settings if required:
+
+1. `PROCESSED_RESULTS` in `brainsfit_batch_registration.py`;
+2. `SLICER_EXE` in `run_brainsfit_registration.bat`.
+
+Then run the Windows launcher:
+
+```bat
+run_brainsfit_registration.bat
+```
+
+The Python file must be executed by 3D Slicer rather than a standard Python or Jupyter environment. Existing outputs are protected by default, missing inputs are skipped, and each parameter/examination result is appended to:
+
+```text
+Processed - Results/BRAINSFit_batch_registration_log.csv
+```
+
+Software completion does not guarantee anatomically valid alignment. Registered maps and transferred kidney masks should therefore be visually checked across all retained slices, especially the outer slices.
+
+## ROI extraction and analysis tables
+
+Run the final analysis branch from `Analysis/BRAINSFit_Registration`:
+
+```bash
+python Analysis.py
+```
+
+The script:
+
+1. reads the BRAINSFit-registered T1, MOLLI T1, and T2 maps;
+2. locates the corresponding whole-kidney mask;
+3. resamples the mask to the registered-map geometry using nearest-neighbour interpolation;
+4. saves the masked maps as `t1_roi_brainsfit.nii.gz`, `molli_roi_brainsfit.nii.gz`, and `t2_roi_brainsfit.nii.gz` inside each examination's `Analysis` folder;
+5. calculates the whole-kidney mean from finite voxels within the final validity ranges;
+6. writes four long-format input tables for the separate population and reliability analyses.
+
+Final validity ranges:
+
+```text
+T1:        500-2500 ms
+MOLLI T1:  500-2500 ms
+T2:         15-150 ms
+```
+
+The four private reliability input tables are:
+
+```text
+Repeatability_HealthyVolunteers_input.csv
+Reproducibility_HealthyVolunteers_input.csv
+Repeatability_Patients_input.csv
+Reproducibility_Patients_input.csv
+```
+
+Centre-specific raw visit labels are mapped to the common `v2a` and `v3` columns expected by the R analysis. Rows from an available single visit may remain in an input table, but the R script forms complete pairs and excludes unmatched visits before calculating reliability statistics.
+
+## Descriptive whole-kidney tables
+
+After the BRAINSFit ROI maps have been generated, run:
+
+```bash
+python Descriptive_roi_values.py
+```
+
+Unlike the reliability analysis, this script does not apply visit-pair definitions. It retains every available processed examination and writes:
 
 ```text
 Descriptive_HealthyVolunteers_master.csv
@@ -118,45 +200,59 @@ Descriptive_HealthyVolunteers_centre_summary.csv
 Descriptive_CKDPatients_centre_summary.csv
 ```
 
-The master tables retain every available examination and include the participant ID, population, centre, vendor, raw visit label, parameter, examination-level mean ROI value, valid-voxel count, and inclusion status.
+The master tables contain participant, population, centre, vendor, raw visit, parameter, examination-level mean, valid-voxel count, and inclusion status. The summary tables report the number of measurements, number of unique participants, mean, standard deviation, median, minimum, and maximum for each centre and parameter, together with an `All included centres` row.
 
-The centre-summary tables report, for each centre and parameter, the number of available measurements, number of unique participants, mean, standard deviation, median, minimum, and maximum. An additional `All included centres` row is generated for each parameter.
+Repeated examinations are intentionally retained. The resulting means describe all available processed measurements and are not single-visit population reference values.
 
-Repeated examinations are intentionally retained. These descriptive tables therefore summarize all available processed measurements and should not be interpreted as population reference values based on a single examination per participant.
+## Statistical analysis and distribution plots
 
-### R analysis workflow
+Run the R scripts after generating their respective input tables:
 
-As stated in the thesis, statistical analyses were performed in R using RStudio. The scripts implement distribution analysis, CoV, ICC, and Bland--Altman analysis for the final quantitative renal MRI input tables. The CoV calculation follows the formulation described by de Boer et al. for repeated-measurement reliability analysis, which was applied previously to DWI data and adapted for this study. ICC and Bland--Altman analyses use established statistical methods implemented with standard R packages.
+```r
+source("stat_T1T2_by_group.R")
+source("distribution_plots_separate.R")
+```
+
+`stat_T1T2_by_group.R` reads the four repeatability/reproducibility tables, constructs complete visit pairs, and calculates:
+
+- overall, centre-specific, and vendor-specific CoV;
+- overall, centre-specific, and vendor-specific ICC with confidence intervals;
+- Bland--Altman mean relative difference and 95% limits of agreement;
+- corresponding tables and figures for healthy volunteers and CKD patients separately.
+
+The CoV implementation follows the repeated-measurement formulation described by de Boer et al. and was adapted to the final renal MRI data structure.
+
+`distribution_plots_separate.R` does **not** read or combine the four paired-analysis tables. It reads the two descriptive master tables so that each available processed examination is included once in the appropriate population-specific distribution dataset.
 
 ## Software requirements
 
-### Python
+### Python processing and Elastix registration
 
-The processing, registration, ROI-table, and descriptive-analysis scripts require Python and the following packages:
+The local workflow used Python with the following principal packages:
 
 ```text
 numpy
+pandas
 nibabel
 pydicom
 matplotlib
 SimpleITK
-itk
-pandas
+itk (with Elastix support)
+UKAT
 ```
 
-They also require authorised access to the RESPECT Processing and Co-Registration Modules and access to UKAT where applicable.
+The processing and initial registration branches additionally require authorised access to the relevant RESPECT helper modules.
 
-`Descriptive_roi_values.py` specifically requires:
+### BRAINSFit registration
 
-```text
-numpy
-pandas
-SimpleITK
-```
+- 3D Slicer with the BRAINSFit/General Registration (BRAINS) command-line module;
+- Windows for the supplied `.bat` launcher, or an equivalent platform-specific command invoking Slicer with `--python-script`.
+
+The Slicer Python environment supplies the `slicer` module; installing the unrelated PyPI package named `slicer` is not a substitute.
 
 ### R
 
-The statistical-analysis scripts require R and the following packages:
+The final R scripts require:
 
 ```r
 install.packages(c("tidyverse", "irr"))
@@ -164,115 +260,80 @@ install.packages(c("tidyverse", "irr"))
 
 ## Local folder layout
 
-The scripts were run within the following local layout:
+The scripts assume the following study-specific layout:
 
 ```text
 Everything related to data and analysis/
-+-- Original data/                 # Restricted DICOM input data
-+-- Masks/                         # Restricted kidney segmentation masks
-+-- Processed - Results/           # Generated subject-level outputs and masked ROI maps
-+-- Results/Separate/              # Final aggregate figures and tables
++-- Original data/                         # restricted DICOM examinations
++-- Masks/                                 # restricted kidney masks
++-- Processed - Results/                   # generated examination-level outputs
 +-- code or notebooks/
     +-- Automate/
     |   +-- functions2.py
     +-- Registration/
     |   +-- Rigid_registration.py
-    +-- Analysis/Separate/
-        +-- Analysis.py
-        +-- Descriptive_roi_values.py
-        +-- stat_T1T2_by_group.R
-        +-- distribution_plots_separate.R
+    |   +-- brainsfit_batch_registration.py
+    |   +-- run_brainsfit_registration.bat
+    |   +-- Registration.ipynb
+    +-- Analysis/
+        +-- BRAINSFit_Registration/         # final analysis branch
+        |   +-- Analysis.py
+        |   +-- Descriptive_roi_values.py
+        |   +-- stat_T1T2_by_group.R
+        |   +-- distribution_plots_separate.R
+        +-- Separate/                       # earlier Elastix-based branch
+        +-- T1_2_parameter/                 # superseded exploratory branch
+        +-- Together/                       # earlier pooled exploratory branch
 ```
 
-The relative paths in the Python scripts reflect this project layout. Users with a different layout must adapt the paths or provide an equivalent configuration.
+The code was written for this layout. Absolute paths in the BRAINSFit batch files and relative paths in earlier scripts must be reviewed before use on another computer.
 
-## Use
+## Example processing call
 
-### Quantitative-map processing
-
-Run from the `Automate` folder in a Python notebook or interactive Python session:
+Run from the `Automate` folder in a Python or Jupyter environment after configuring the required dependencies and data access:
 
 ```python
 from functions2 import process_patient
 
-patient_folder = "../../Original data/<patient_folder_name>"
+patient_folder = "../../Original data/<examination_folder>"
 process_patient(patient_folder)
 ```
 
-To process all available patient folders:
+The workflow skips already completed sequence outputs and records missing or failed sequences in `Processed - Results/Pipeline_Log.txt`.
 
-```python
-import os
-from functions2 import process_patient
+## External projects and acknowledgements
 
-original_data = "../../Original data"
+### RESPECT Processing Module
 
-for patient in sorted(os.listdir(original_data)):
-    patient_folder = os.path.join(original_data, patient)
-    if os.path.isdir(patient_folder):
-        process_patient(patient_folder)
-```
+The DICOM loading, organisation, and processing workflow was adapted from the RESPECT Processing Module. Access to the complete upstream module may be restricted.
 
-### Rigid registration
+- [RESPECT Processing Module](https://github.com/Computer-Assisted-Clinical-Medicine/RESPECT_Processing_Module)
 
-Run from the `Registration` folder:
+### RESPECT Co-Registration Module
 
-```bash
-python Rigid_registration.py
-```
+The initial ITK/Elastix branch uses helper functionality and conventions associated with the RESPECT Co-Registration Module. Restricted upstream components are not redistributed.
 
-The script checks each available subject folder and registers each available T1, T2, and MOLLI map independently. Existing registered maps are skipped.
+- [RESPECT Co-Registration Module](https://github.com/Computer-Assisted-Clinical-Medicine/RESPECT_Co-Registration_Module)
 
-### Reliability-analysis input tables
+### UKAT
 
-Run `Analysis.py` from `Analysis/Separate/`. It applies the available kidney masks to the registered maps and regenerates the four private input tables used by the R scripts:
+Quantitative mapping uses UKAT functionality, including the T1, T2 StimFit, B0, and utility components.
 
-```bash
-python Analysis.py
-```
+- [UKAT: UKRIN-MAPS](https://github.com/UKRIN-MAPS/ukat)
 
-The four non-public long-format input CSV files contain repeatability and reproducibility measurements for healthy volunteers and CKD patients. Each row represents a whole-kidney ROI measurement together with the study ID, imaging centre, vendor, visit, parameter, and measurement value.
+### 3D Slicer and BRAINSFit
 
-### Descriptive whole-kidney tables
+The final quantitative-map registration was performed through 3D Slicer using BRAINSFit. Users should consult the 3D Slicer and BRAINSFit documentation for software citation and licence information.
 
-After the masked ROI maps have been generated, run:
-
-```bash
-python Descriptive_roi_values.py
-```
-
-The script scans every available examination folder in `Processed - Results`. It does not use the four reliability-analysis input tables and does not apply repeatability or reproducibility visit-pair selection.
-
-It generates the following private files in `Analysis/Separate/`:
-
-```text
-Descriptive_HealthyVolunteers_master.csv
-Descriptive_CKDPatients_master.csv
-Descriptive_HealthyVolunteers_centre_summary.csv
-Descriptive_CKDPatients_centre_summary.csv
-```
-
-The descriptive outputs retain repeated visits intentionally and are used to summarize the available whole-kidney T1, MOLLI, and T2 measurements by centre and across all included centres.
-
-### Statistical analysis
-
-Run the R scripts from `Analysis/Separate/` after generating the reliability input tables:
-
-```r
-source("stat_T1T2_by_group.R")
-source("distribution_plots_separate.R")
-```
-
-The R scripts operate on the paired repeatability and reproducibility input tables. The descriptive CSV files generated by `Descriptive_roi_values.py` are separate outputs and are not used as replacements for those paired reliability tables.
+- [3D Slicer](https://www.slicer.org/)
+- [BRAINSFit documentation](https://www.slicer.org/wiki/Documentation/Nightly/Modules/BRAINSFit)
 
 ## Data availability and privacy
 
-Raw DICOM data, segmentation masks, participant identifiers, subject-level quantitative maps, masked ROI maps, reliability-analysis input CSV tables, descriptive master tables, descriptive centre-summary tables, and generated participant-level outputs are not included. These materials are restricted because they are governed by study-data access requirements and participant privacy.
+Raw DICOM data, kidney masks, participant identifiers, subject-level quantitative maps, registered maps, masked ROI maps, input CSV files, descriptive tables, and participant-level outputs are not included because they are subject to study-data access requirements and participant privacy restrictions.
 
-The upstream RESPECT modules are also not redistributed here. Researchers seeking to reproduce the complete workflow require authorised access to the appropriate data and upstream modules.
+Reproducing the complete workflow therefore requires authorised access to the study data and any restricted upstream modules. Generated CSV files and figures should be reviewed before publication because filenames and table contents may contain study identifiers.
 
-`Descriptive_roi_values.py` reads restricted thesis data. If the local project policy requires this script itself to remain private, it should not be redistributed in a public repository; the description above documents its role in the thesis workflow without implying that restricted data are included.
+## Citation
 
-## Citation and acknowledgement
-
-Please acknowledge the RESPECT Processing Module, RESPECT Co-Registration Module, UKAT, ITK/Elastix, the published de Boer et al. CoV formulation, and the R packages used when reusing or adapting this workflow. Consult the relevant upstream repositories and the thesis references for citation and licence information.
+When reusing or adapting this workflow, cite the relevant RESPECT modules, UKAT, 3D Slicer/BRAINSFit, ITK/Elastix, the statistical methods, and the R packages used. Consult the thesis reference list and the upstream projects for the appropriate citations and licence terms.
