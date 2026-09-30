@@ -29,38 +29,14 @@ volunteers and CKD patients are analysed separately.
   -----------------------------------------------------------------------
   Script                              Role
   ----------------------------------- -----------------------------------
-  `functions2.py`                     Quantitative-map processing for
-                                      respiratory-triggered T1, MOLLI T1,
-                                      T2 StimFit, B0/B1 maps, B1
-                                      correction, and QC outputs.
+  | `functions2.py` | Quantitative-map processing for respiratory-triggered T1, MOLLI T1, T2 StimFit, B0, B1, B1 correction, and quality-control outputs. |
+| `Rigid_registration.py` | Initial ITK/Elastix registration workflow used during the thesis. |
+| `brainsfit_batch_registration.py` | Final batch registration of quantitative maps to the prepared anatomical T1-weighted reference images using 3D Slicer BRAINSFit. |
+| `Analysis.py` | Applies whole-kidney masks to the BRAINSFit-registered maps and generates the four repeatability and reproducibility input tables. |
+| `Descriptive_roi_values.py` | Generates examination-level and centre-summary descriptive whole-kidney biomarker tables from all available processed measurements. |
+| `stat_T1T2_by_group.R` | Calculates CoV, ICC, and Bland--Altman statistics for healthy volunteers and CKD patients. |
+| `distribution_plots_separate.R` | Generates centre-wise T1, MOLLI T1, and T2 distribution plots separately for healthy volunteers and CKD patients. |
 
-  `Rigid_registration.py`             Initial ITK/Elastix registration
-                                      workflow retained from thesis
-                                      development.
-
-  `brainsfit_batch_registration.py`   Final batch registration of
-                                      quantitative maps to prepared
-                                      anatomical T1-weighted references
-                                      using 3D Slicer BRAINSFit.
-
-  `Analysis.py`                       Applies whole-kidney masks to
-                                      registered maps and creates four
-                                      paired reliability-analysis input
-                                      tables.
-
-  `Descriptive_roi_values.py`         Generates examination-level and
-                                      centre-summary descriptive
-                                      whole-kidney tables from all
-                                      available processed measurements.
-
-  `stat_T1T2_by_group.R`              Calculates CoV, ICC, and
-                                      Bland--Altman statistics separately
-                                      for healthy volunteers and CKD
-                                      patients.
-
-  `distribution_plots_separate.R`     Creates centre-wise parameter
-                                      distribution plots for the two
-                                      populations.
   -----------------------------------------------------------------------
 
 Only thesis-relevant scripts are included. Study data, generated
