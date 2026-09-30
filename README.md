@@ -26,10 +26,10 @@ volunteers and CKD patients are analysed separately.
 └── distribution_plots_separate.R
 ```
 
-  -----------------------------------------------------------------------
-  Script                              Role
-  ----------------------------------- -----------------------------------
-  |---|---|
+  ## Included files
+
+| File | Purpose |
+|---|---|
 | `functions2.py` | Quantitative-map processing for respiratory-triggered T1, MOLLI T1, T2 StimFit, B0, B1, B1 correction, and quality-control outputs. |
 | `Rigid_registration.py` | Initial ITK/Elastix registration workflow used during the thesis. |
 | `brainsfit_batch_registration.py` | Final batch registration of quantitative maps to the prepared anatomical T1-weighted reference images using 3D Slicer BRAINSFit. |
@@ -38,11 +38,8 @@ volunteers and CKD patients are analysed separately.
 | `stat_T1T2_by_group.R` | Calculates CoV, ICC, and Bland--Altman statistics for healthy volunteers and CKD patients. |
 | `distribution_plots_separate.R` | Generates centre-wise T1, MOLLI T1, and T2 distribution plots separately for healthy volunteers and CKD patients. |
 
-  -----------------------------------------------------------------------
+Only the thesis-relevant scripts are included. Study data, generated results, temporary development files, and upstream helper modules are excluded.
 
-Only thesis-relevant scripts are included. Study data, generated
-results, temporary development files, and upstream helper modules are
-excluded.
 
 ## Execution guide
 
