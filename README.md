@@ -26,9 +26,9 @@ volunteers and CKD patients are analysed separately.
 └── distribution_plots_separate.R
 ```
 
-  ## Included files
+  ## Included Scripts
 
-| File | Purpose |
+| Script | Purpose |
 |---|---|
 | `functions2.py` | Quantitative-map processing for respiratory-triggered T1, MOLLI T1, T2 StimFit, B0, B1, B1 correction, and quality-control outputs. |
 | `Rigid_registration.py` | Initial ITK/Elastix registration workflow used during the thesis. |
