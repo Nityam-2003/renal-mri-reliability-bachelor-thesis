@@ -2,19 +2,23 @@
 IMPORTANT: Thesis-specific quantitative renal MRI processing workflow.
 
 This module adapts the RESPECT Processing Module for the renal MRI sequences
-and folder conventions used in this Bachelor thesis. It is not a standalone
+and folder conventions used in this bachelor thesis. It is not a standalone
 application and does not redistribute the restricted upstream helper modules
 or UKAT source code.
 
-Run from the ``Automate`` folder after authorised access to the required data,
-RESPECT helper modules, and UKAT has been obtained. To process one dataset,
-import and call ``process_patient(patient_folder)``. Paths beginning with
-``../../`` assume the project layout described in the repository README.
+The module processes respiratory-triggered T1 mapping, MOLLI T1 mapping,
+respiratory-triggered T2 mapping, and available B0 and B1 mapping data.
+It generates quantitative maps, applies B1 correction to T1 and MOLLI T1,
+and produces quality-control outputs.
 
-The module creates quantitative T1, T2, MOLLI, B0, and B1 outputs, applies B1
-correction to T1 and MOLLI maps, and writes quality-control outputs. Raw data,
-participant identifiers, and generated outputs must not be committed to a
-public repository.
+Run from the ``Automate`` folder after obtaining authorised access to the
+required data, RESPECT helper modules, and UKAT. To process one dataset,
+import the module and call ``process_patient(patient_folder)``. Relative
+paths beginning with ``../../`` assume the project layout described in
+the repository README.
+
+Raw data, participant identifiers, and generated outputs must not be
+committed to a public repository.
 """
 
 from fetch import get_t1_data
