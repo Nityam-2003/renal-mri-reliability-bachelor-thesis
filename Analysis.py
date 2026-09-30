@@ -1,8 +1,7 @@
 """Apply kidney masks to BRAINSFit-registered maps and build input tables.
 
 This is an independent analysis branch for the final 3D Slicer BRAINSFit
-registration. It never overwrites the original Elastix ROI maps or the CSV
-tables stored in ``Analysis/Separate``.
+registration. 
 """
 
 from pathlib import Path
