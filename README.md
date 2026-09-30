@@ -29,7 +29,8 @@ volunteers and CKD patients are analysed separately.
   -----------------------------------------------------------------------
   Script                              Role
   ----------------------------------- -----------------------------------
-  | `functions2.py` | Quantitative-map processing for respiratory-triggered T1, MOLLI T1, T2 StimFit, B0, B1, B1 correction, and quality-control outputs. |
+  |---|---|
+| `functions2.py` | Quantitative-map processing for respiratory-triggered T1, MOLLI T1, T2 StimFit, B0, B1, B1 correction, and quality-control outputs. |
 | `Rigid_registration.py` | Initial ITK/Elastix registration workflow used during the thesis. |
 | `brainsfit_batch_registration.py` | Final batch registration of quantitative maps to the prepared anatomical T1-weighted reference images using 3D Slicer BRAINSFit. |
 | `Analysis.py` | Applies whole-kidney masks to the BRAINSFit-registered maps and generates the four repeatability and reproducibility input tables. |
