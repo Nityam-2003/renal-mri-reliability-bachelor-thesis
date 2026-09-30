@@ -11,15 +11,25 @@ are assessed using the coefficient of variation (CoV), intraclass
 correlation coefficient (ICC), and Bland--Altman analysis. Healthy
 volunteers and CKD patients are analysed separately.
 
+**Important:** The scripts were developed for the specific folder
+structure, file organisation, and naming conventions used in the original
+bachelor thesis project. They rely on these conventions to locate input
+data, access intermediate results, and save outputs. The scripts are
+therefore not directly plug-and-play for other datasets or directory
+structures. Before reuse, the relevant paths, folder structures, and
+file naming conventions throughout the scripts must be reviewed and
+adapted to the user's own environment and data organisation.
+
 ## Repository contents
 
 ``` text
-.
+
 ├── README.md
 ├── requirements.txt
 ├── functions2.py
 ├── Rigid_registration.py
 ├── brainsfit_batch_registration.py
+├── run_brainsfit_registration.bat
 ├── Analysis.py
 ├── Descriptive_roi_values.py
 ├── stat_T1T2_by_group.R
@@ -33,6 +43,7 @@ volunteers and CKD patients are analysed separately.
 | `functions2.py` | Quantitative-map processing for respiratory-triggered T1, MOLLI T1, T2 StimFit, B0, B1, B1 correction, and quality-control outputs. |
 | `Rigid_registration.py` | Initial ITK/Elastix registration workflow used during the thesis. |
 | `brainsfit_batch_registration.py` | Final batch registration of quantitative maps to the prepared anatomical T1-weighted reference images using 3D Slicer BRAINSFit. |
+| `run_brainsfit_registration.bat` | Windows batch launcher for executing the BRAINSFit registration script through 3D Slicer. |
 | `Analysis.py` | Applies whole-kidney masks to the BRAINSFit-registered maps and generates the four repeatability and reproducibility input tables. |
 | `Descriptive_roi_values.py` | Generates examination-level and centre-summary descriptive whole-kidney biomarker tables from all available processed measurements. |
 | `stat_T1T2_by_group.R` | Calculates CoV, ICC, and Bland--Altman statistics for healthy volunteers and CKD patients. |
@@ -119,11 +130,21 @@ ROI measurements use BRAINSFit-registered maps.
 
 Run `brainsfit_batch_registration.py` inside 3D Slicer, not standard
 Python. It registers each unmasked quantitative map to the prepared
-T1-weighted fixed image for the same examination. Settings:
-geometry-based initialisation, sampling percentage `0.002`, rigid and
-global-scale stages enabled, affine and B-spline stages disabled, linear
-interpolation, and background fill value `0`. This is rigid-plus-scale
-linear registration, not deformable registration.
+T1-weighted fixed image for the same examination.
+
+The batch file `run_brainsfit_registration.bat` provides a convenient
+Windows launcher for this process. Before execution, configure the path
+to the local 3D Slicer executable in the batch file. It assumes that
+`brainsfit_batch_registration.py` is located in the same directory.
+
+The registration script uses the project-specific directory structure
+and file naming conventions described below. These must be adapted if
+the script is reused with a different dataset organisation.
+
+Settings: geometry-based initialisation, sampling percentage `0.002`,
+rigid and global-scale stages enabled, affine and B-spline stages
+disabled, linear interpolation, and background fill value `0`. This is
+rigid-plus-scale linear registration, not deformable registration.
 
 Expected inputs within each processed examination:
 
