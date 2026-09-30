@@ -1,11 +1,15 @@
-"""Batch-register renal quantitative maps with 3D Slicer BRAINSFit.
+"""
+Batch-register renal quantitative maps with 3D Slicer BRAINSFit.
 
-This script must be executed by 3D Slicer, not by a normal Python or Jupyter
-installation. It registers each unmasked quantitative map directly to the
-already prepared fixed T1-weighted image for the same dataset.
+This script implements the final registration workflow used in the
+bachelor thesis. It must be executed by 3D Slicer, not by a normal
+Python or Jupyter installation.
 
-Existing registration results are never overwritten. New results are written
-under each dataset's Registration_BRAINS directory.
+Each unmasked quantitative map is registered directly to the
+corresponding, already prepared fixed T1-weighted image.
+
+Existing registration results are never overwritten. New results
+are written under each dataset's Registration_BRAINS directory.
 """
 
 from __future__ import annotations
