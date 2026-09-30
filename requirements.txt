@@ -1,0 +1,13 @@
+# Core scientific computing
+numpy
+pandas
+scipy
+matplotlib
+
+# MRI and medical image processing
+nibabel
+pydicom
+SimpleITK
+
+# Quantitative MRI mapping
+ukat
