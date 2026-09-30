@@ -1,19 +1,21 @@
 """
-IMPORTANT: Thesis-specific rigid registration of quantitative renal MRI maps.
+IMPORTANT: Earlier registration approach retained for documentation.
 
-This script registers available T1, T2, and MOLLI maps to the relevant
-anatomical reference image for each processed dataset. It is an adaptation
-around ITK/Elastix and helper functionality associated with the restricted
-RESPECT Co-Registration Module; upstream helper code is not redistributed.
+This script contains the initial rigid registration workflow developed
+during the bachelor thesis for aligning quantitative renal MRI maps
+(T1, T2, and MOLLI) with the corresponding anatomical reference images.
 
-Run this file from the ``Registration`` folder using
-``python Rigid_registration.py``. The relative paths beginning with ``../../``
-assume the project layout described in the repository README. Existing
-registered maps are skipped individually.
+The initial approach was based on ITK/Elastix and helper functionality
+associated with the RESPECT Co-Registration Module. It was subsequently
+replaced by a 3D Slicer BRAINSFit-based registration workflow, which was
+used to generate the final registered maps for ROI extraction and analysis.
 
-This script reads restricted data and creates outputs in ``Processed -
-Results``. Do not commit raw data, masks, participant identifiers, or generated
-outputs to a public repository.
+This script is retained to document the development of the processing
+pipeline and is not part of the final registration workflow used for the
+reported ROI measurements.
+
+The original implementation requires the restricted RESPECT helper
+modules, which are not redistributed in this repository.
 """
 
 from pathlib import Path
